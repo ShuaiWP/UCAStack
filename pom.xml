@@ -13,7 +13,10 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>ucastack</name>
     <description>project for Spring Boot</description>
+    <!--这里的properties相当重要，涉及到css页面显示问题-->
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
     <dependencies>

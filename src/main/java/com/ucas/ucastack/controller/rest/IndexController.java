@@ -44,7 +44,7 @@ public class IndexController {
         request.setAttribute("postCategories", postCategories);
 
         //第二步：将近期热议的帖子数据封装到request域中
-        request.setAttribute("hotTopicPostList", postService.getHotTopicPostList());
+        request.setAttribute("hotTopicBBSPostList", postService.getHotTopicPostList());
 
         //封装参数
         Map params = new HashMap();
