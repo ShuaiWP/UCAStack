@@ -70,13 +70,13 @@
                                 </a>
                                 <h2>
                                     <a href="##" class="layui-badge"
-                                       th:text="${bbsPostListEntity.postCategoryName}">分享</a>
+                                       th:text="${bbsPostListEntity.postCategoryName}">提问</a>
                                     <a th:href="@{${'/detail/'+bbsPostListEntity.postId}}"
-                                       th:text="${bbsPostListEntity.postTitle}">My-BBS开源啦</a>
+                                       th:text="${bbsPostListEntity.postTitle}"></a>
                                 </h2>
                                 <div class="fly-list-info">
                                     <a th:href="@{${'/userCenter/'+bbsPostListEntity.publishUserId}}" link>
-                                        <cite th:text="${bbsPostListEntity.nickName}">程序员十三</cite>
+                                        <cite th:text="${bbsPostListEntity.nickName}"></cite>
                                     </a>
                                     <span th:text="${#dates.format(bbsPostListEntity.createTime, 'yyyy-MM-dd HH:mm:ss')}">刚刚</span>
                                     <span class="fly-list-kiss layui-hide-xs" title="赞"><i
@@ -151,7 +151,7 @@
                 <th:block th:unless="${#lists.isEmpty(hotTopicBBSPostList)}">
                     <th:block th:each="bbsEntity : ${hotTopicBBSPostList}">
                         <dd>
-                            <a th:href="@{'/detail/'+${bbsEntity.postId}}" th:text="${bbsEntity.postTitle}">My-BBS开源啦</a>
+                            <a th:href="@{'/detail/'+${bbsEntity.postId}}" th:text="${bbsEntity.postTitle}"></a>
                             <span><i class="iconfont icon-pinglun1"></i> <th:block
                                     th:text="${bbsEntity.postComments}"></th:block></span>
                         </dd>
@@ -164,7 +164,7 @@
 </div>
 
 <div class="fly-footer">
-    <p>My-BBS社区 2021 &copy; <a href="https://github.com/ZHENFENG13/My-BBS" target="_blank">十三</a></p>
+    <p>国科大论坛 2022 &copy; <a href="https://github.com/ShuaiWP/UCAStack" target="_blank">github链接</a></p>
 </div>
 
 <script th:src="@{/layui/layui.js}"></script>
