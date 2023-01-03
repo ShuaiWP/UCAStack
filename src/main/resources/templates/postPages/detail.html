@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="header::head-fragment('帖子详情')">
+</head>
+<body>
+<div th:replace="header::header-fragment"></div>
+
+<!--<div class="fly-panel fly-column">-->
+    <!--<div class="layui-container">-->
+        <!--<ul class="layui-clear">-->
+            <!--<li th:class="${null ==categoryId} ?'layui-hide-xs layui-this':''"><a href="/">首页</a></li>-->
+            <!--<th:block th:unless="${null == bbsPostCategories}">-->
+                <!--<th:block th:each="c : ${bbsPostCategories}">-->
+                    <!--<li th:class="${null !=categoryId and categoryId==c.categoryId} ?'layui-hide-xs layui-this':''">-->
+                        <!--<a th:href="@{${'/index?categoryId='+c.categoryId}}"-->
+                           <!--th:text="${c.categoryName}">分享</a>-->
+                    <!--</li>-->
+                <!--</th:block>-->
+            <!--</th:block>-->
+
+            <!--<li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>-->
+        <!--</ul>-->
+
+        <!--<div class="fly-column-right layui-hide-xs">-->
+            <!--<a th:href="@{/addPostPage}" class="layui-btn">发布新帖</a>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
+<div class="fly-panel fly-column">
+    <div class="layui-container">
+        <!-- 1.渲染页面顶部的帖子分类信息 -->
+        <ul class="layui-clear">
+            <li th:class="${null ==categoryId} ?'layui-hide-xs layui-this':''"><a href="/">首页</a></li>
+            <li th:class="'layui-hide-xs layui-this'"><a id="mysearch">搜索问题</a></li>
+            <!--<span class="fly-search"><i class="layui-icon"></i></span>-->
+            <li th:class="'layui-hide-xs layui-this'"><a th:href="@{/addPostPage}">提出新问题</a></li>
+            <!--<a " class="layui-btn">发布新帖</a>-->
+            <!--<th:block th:unless="${null == bbsPostCategories}">-->
+            <!--<th:block th:each="c : ${bbsPostCategories}">-->
+            <!--<li th:class="${null !=categoryId and categoryId==c.categoryId} ?'layui-hide-xs layui-this':''">-->
+            <!--<a th:href="@{${'/index?categoryId='+c.categoryId}}"-->
+            <!--th:text="${c.categoryName}">分享</a>-->
+            <!--</li>-->
+            <!--</th:block>-->
+            <!--</th:block>-->
+
+            <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
+        </ul>
+
+        <div class="fly-column-right layui-hide-xs">
+            <span class="fly-search"><i class="layui-icon"></i></span>
+            <a th:href="@{/addPostPage}" class="layui-btn">发布新帖</a>
+        </div>
+    </div>
+</div>
+
+<div class="layui-container">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8 content detail">
+            <div class="fly-panel detail-box">
+                <h1 th:text="${post.postTitle}"></h1>
+                <div class="fly-detail-info">
+                    <div>
+                        <a class="layui-btn layui-btn-xs jie-admin"
+                           th:href="@{'/editPostPage/'+${post.postId}}">编辑</a>
+                    </div>
+                    <span class="fly-list-nums">
+            <a href="#comments"><i class="iconfont" title="评论">&#xe60c;</i> <th:block
+                    th:text="${post.postComments}"></th:block></a>
+            <i class="iconfont" title="人气">&#xe60b;</i> <th:block th:text="${post.postViews}"></th:block>
+          </span>
+                </div>
+                <div class="detail-about">
+                    <a class="fly-avatar" th:href="@{${'/userCenter/'+user.userId}}">
+                        <img th:src="@{${user.headImgUrl}}">
+                    </a>
+                    <div class="fly-detail-user">
+                        <a th:href="@{${'/userCenter/'+user.userId}}" class="fly-link">
+                            <cite th:text="${user.nickName}"></cite>
+                            <span>
+                              <th:block th:if="${user.userStatus==0}">账号正常
+                              </th:block>
+                              <th:block th:if="${user.userStatus==1}">账号已被封
+                              </th:block>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="detail-hits" id="LAY_jieAdmin" data-id="123">
+                        <span th:text="${#dates.format(post.createTime, 'yyyy-MM-dd')}">2021-08-01</span>
+                        <span style="margin-left: 6px; padding-right: 10px; color: #FF7200"
+                              th:text="${'最新修改时间：'+#dates.format(post.lastUpdateTime, 'yyyy-MM-dd HH:mm:ss')}">2021-08-01</span>
+                    </div>
+                </div>
+                <div class="detail-body photos" th:utext="${post.postContent}">
+                </div>
+                <div style="text-align: center;">
+                    <th:block th:unless="${currentUserCollectFlag}">
+                        <a href="##" th:onclick="'collect('+${post.postId}+')'">
+                        <span style="color: red;">
+                            <i class="iconfont icon-zan"></i>
+                            收藏&nbsp;&nbsp;(<th:block th:text="${post.postCollects}"></th:block>)
+                        </span>
+                        </a>
+                    </th:block>
+                    <th:block th:if="${currentUserCollectFlag}">
+                        <a href="##" th:onclick="'delCollect('+${post.postId}+')'">
+                        <span style="color: grey;">
+                            <i class="iconfont icon-zan"></i>
+                            取消收藏&nbsp;&nbsp;(<th:block th:text="${post.postCollects}"></th:block>)
+                        </span>
+                        </a>
+                    </th:block>
+                </div>
+            </div>
+
+            <div class="fly-panel detail-box" id="comments">
+                <fieldset class="layui-elem-field layui-field-title" style="text-align: center;">
+                    <legend>回帖</legend>
+                </fieldset>
+
+                <ul class="jieda" id="jieda">
+                    <th:block th:if="${#lists.isEmpty(commentsPage.list)}">
+                        <!-- 无数据时 -->
+                        <li class="fly-none">消灭零回复</li>
+                    </th:block>
+                    <th:block th:unless="${#lists.isEmpty(commentsPage.list)}">
+                        <th:block th:each="commentListEntity : ${commentsPage.list}">
+                            <li data-id="111">
+                                <a name="item-1111111111"></a>
+                                <div class="detail-about detail-about-reply">
+                                    <a class="fly-avatar"
+                                       th:href="@{${'/userCenter/'+commentListEntity.commentUserId}}">
+                                        <img th:src="@{${commentListEntity.headImgUrl}}"
+                                             th:alt="${commentListEntity.nickName}">
+                                    </a>
+                                    <div class="fly-detail-user">
+                                        <a th:href="@{${'/userCenter/'+commentListEntity.commentUserId}}"
+                                           class="fly-link">
+                                            <cite th:text="${commentListEntity.nickName}"></cite>
+                                        </a>
+                                    </div>
+                                    <div class="detail-hits">
+                                        <span th:text="${#dates.format(commentListEntity.commentCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                                    </div>
+                                </div>
+                                <div class="detail-body jieda-body photos">
+                                    <p th:text="${commentListEntity.commentBody}">回复内容</p>
+                                </div>
+                                <div class="jieda-reply">
+                                    <a href="#replyTextarea"
+                                       th:onclick="'preReply('+${commentListEntity.commentUserId}+')'">
+                                    <span type="reply">
+                                    <i class="iconfont icon-svgmoban53"></i>
+                                    回复
+                                    </span>
+                                    </a>
+                                    <div class="jieda-admin">
+                                        <span type="del" th:onclick="'delReply('+${commentListEntity.commentId}+')'">删除</span>
+                                    </div>
+                                </div>
+                            </li>
+                        </th:block>
+                    </th:block>
+                </ul>
+                <th:block th:unless="${#lists.isEmpty(commentsPage.list)}">
+                    <!-- 有数据时才会显示分页按钮 -->
+                    <div style="text-align: center">
+                        <div class="laypage-main">
+                            <th:block th:if="${commentsPage.currPage>1}">
+                                <a class="laypage-prev"
+                                   th:href="@{'/detail/'+${post.postId}+'?commentPage=' + ${commentsPage.currPage-1}+'#comments'}">
+                                    &lt;&lt;</a>
+                            </th:block>
+                            <th:block th:if="${commentsPage.currPage==1}">
+                                <a class="laypage-prev"
+                                   href="##">
+                                    &lt;&lt;</a>
+                            </th:block>
+                            <th:block th:if="${commentsPage.currPage-2 >=1}">
+                                <a class="laypage-prev"
+                                   th:href="@{'/detail/'+${post.postId}+'?commentPage=' + ${commentsPage.currPage-2}+'#comments'}"
+                                   th:text="${commentsPage.currPage - 2}">1</a>
+                            </th:block>
+                            <th:block th:if="${commentsPage.currPage-1 >=1}">
+                                <a class="laypage-prev"
+                                   th:href="@{'/detail/'+${post.postId}+'?commentPage=' + ${commentsPage.currPage-1}+'#comments'}"
+                                   th:text="${commentsPage.currPage - 1}">1</a>
+                            </th:block>
+                            <a href="##" class="laypage-curr" th:text="${commentsPage.currPage}">1</a>
+                            <th:block th:if="${commentsPage.currPage+1<=commentsPage.totalPage}">
+                                <a class="laypage-next"
+                                   th:href="@{'/detail/'+${post.postId}+'?commentPage=' + ${commentsPage.currPage+1}+'#comments'}"
+                                   th:text="${commentsPage.currPage + 1}">1</a>
+                            </th:block>
+                            <th:block th:if="${commentsPage.currPage+2<=commentsPage.totalPage}">
+                                <a class="laypage-next"
+                                   th:href="@{'/detail/'+${post.postId}+'?commentPage=' + ${commentsPage.currPage+2}+'#comments'}"
+                                   th:text="${commentsPage.currPage + 2}">1</a>
+                            </th:block>
+                            <th:block th:if="${commentsPage.currPage<commentsPage.totalPage}">
+                                <a class="laypage-next"
+                                   th:href="@{'/detail/'+${post.postId}+'?commentPage=' + ${commentsPage.currPage+1}+'#comments'}">
+                                    &gt;&gt;</a>
+                            </th:block>
+                            <th:block th:if="${commentsPage.currPage==commentsPage.totalPage}">
+                                <a class="laypage-next"
+                                   href="##">
+                                    &gt;&gt;</a>
+                            </th:block>
+                        </div>
+                    </div>
+                </th:block>
+
+                <div class="layui-form layui-form-pane" id="replyTextarea">
+                    <form method="post" id="replyForm" onsubmit="return false;" action="##">
+                        <input type="hidden" id="postId" name="postId" th:value="${post.postId}">
+                        <input type="hidden" id="parentCommentUserId" name="parentCommentUserId" value="0">
+                        <div class="layui-form-item layui-form-text">
+                            <div class="layui-input-block">
+                                <textarea id="commentBody" name="commentBody" required lay-verify="required"
+                                          placeholder="请输入内容" class="layui-textarea fly-editor"
+                                          style="height: 150px;"></textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label for="verifyCode" class="layui-form-label">验证码</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="verifyCode" name="verifyCode" required lay-verify="required"
+                                       placeholder="请输入验证码" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">
+                             <span><img data-tooltip="看不清楚？换一张"
+                                        th:src="@{/common/captcha}"
+                                        onclick="this.src='/common/captcha?d='+new Date()*1"
+                                        alt="单击图片刷新！"></span>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <input type="hidden" name="jid" value="123">
+                            <button class="layui-btn" lay-filter="*" lay-submit onclick="reply()">提交回复</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <dl class="fly-panel fly-list-one">
+                <dt class="fly-panel-title">本周热议</dt>
+                <th:block th:if="${#lists.isEmpty(hotTopicPostList)}">
+                    <!-- 无数据时 -->
+                    <div class="fly-none">没有相关数据</div>
+                </th:block>
+                <th:block th:unless="${#lists.isEmpty(hotTopicPostList)}">
+                    <th:block th:each="bbsEntity : ${hotTopicPostList}">
+                        <dd>
+                            <a th:href="@{'/detail/'+${bbsEntity.postId}}"
+                               th:text="${bbsEntity.postTitle}"></a>
+                            <span><i class="iconfont icon-pinglun1"></i> <th:block
+                                    th:text="${bbsEntity.postComments}"></th:block></span>
+                        </dd>
+                    </th:block>
+                </th:block>
+            </dl>
+
+            <!--<div class="fly-panel">-->
+                <!--<div class="fly-panel-title">-->
+                    <!--我的公众号-->
+                <!--</div>-->
+                <!--<div class="fly-panel-main">-->
+                    <!--<a href="https://juejin.im/user/59199e22a22b9d0058279886" target="_blank">-->
+                        <!--<img style="max-width: 100%;" th:src="@{/images/my-gzh-qrcode.jpg}">-->
+                    <!--</a>-->
+                <!--</div>-->
+            <!--</div>-->
+
+            <!--<div class="fly-panel">-->
+                <!--<div class="fly-panel-title">-->
+                    <!--我的新书-->
+                <!--</div>-->
+                <!--<div class="fly-panel-main">-->
+                    <!--<a href="https://item.jd.com/12890115.html" target="_blank">-->
+                        <!--<img style="max-width: 100%;" th:src="@{/images/my-book01.png}">-->
+                    <!--</a>-->
+                <!--</div>-->
+            <!--</div>-->
+
+        </div>
+    </div>
+</div>
+
+<div class="fly-footer">
+    <p>国科大论坛 2022 &copy; <a href="https://github.com/ShuaiWP/UCAStack" target="_blank">github链接</a></p>
+</div>
+
+<script th:src="@{/layui/layui.js}"></script>
+<script th:src="@{/js/public.js}"></script>
+
+<script type="text/javascript">
+    layui.use(['layer', 'element', 'jquery'], function () {
+        var layer = layui.layer, $ = layui.$, element = layui.element;
+        var device = layui.device();
+        //阻止IE7以下访问
+        if (device.ie && device.ie < 8) {
+            layer.alert('如果您非得使用 IE 浏览器访问社区，那么请使用 IE8+');
+        }
+
+        //回复按钮的触发事件
+        window.preReply = function (parentCommentUserId) {
+            $('#parentCommentUserId').val(parentCommentUserId);
+        }
+
+        //评论
+        window.reply = function (postId) {
+            var $ = layui.$;
+            var verifyCode = $("#verifyCode").val();
+            if (!validLength(verifyCode, 5)) {
+                layer.alert('请输入正确的验证码!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
+                return false;
+            }
+            var commentBody = $("#commentBody").val();
+            if (isNull(commentBody)) {
+                layer.alert('请输入评论!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
+                return false;
+            }
+            var params = $("#replyForm").serialize();
+            var url = '/replyPost';
+            $.ajax({
+                type: 'POST',//方法类型
+                url: url,
+                data: params,
+                success: function (result) {
+                    if (result.resultCode == 200) {
+                        layer.confirm('评论成功!将刷新本页面...', {
+                            icon: 3,
+                            skin: 'layui-layer-molv',
+                            title: '提示'
+                        }, function (index) {
+                            layer.close(index);
+                            window.location.reload();
+                        });
+                    } else {
+                        layer.msg(result.message);
+                    }
+                    ;
+                },
+                error: function () {
+                    layer.alert('操作失败!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
+                }
+            });
+        }
+
+        //删除评论
+        window.delReply = function (commentId) {
+            var $ = layui.$;
+            $.ajax({
+                type: 'POST',//方法类型
+                url: '/delReply/' + commentId,
+                success: function (result) {
+                    if (result.resultCode == 200) {
+                        layer.confirm('删除成功!将刷新本页面...', {
+                            icon: 3,
+                            skin: 'layui-layer-molv',
+                            title: '提示'
+                        }, function (index) {
+                            layer.close(index);
+                            window.location.reload();
+                        });
+                    } else {
+                        layer.msg(result.message);
+                    }
+                    ;
+                },
+                error: function () {
+                    layer.alert('操作失败!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
+                }
+            });
+        }
+
+        //收藏
+        window.collect = function (postId) {
+            var $ = layui.$;
+            $.ajax({
+                type: 'POST',//方法类型
+                url: '/addCollect/' + postId,
+                success: function (result) {
+                    if (result.resultCode == 200) {
+                        layer.confirm('收藏成功!将刷新本页面...', {
+                            icon: 3,
+                            skin: 'layui-layer-molv',
+                            title: '提示'
+                        }, function (index) {
+                            layer.close(index);
+                            window.location.reload();
+                        });
+                    } else {
+                        layer.msg(result.message);
+                    }
+                    ;
+                },
+                error: function () {
+                    layer.alert('操作失败!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
+                }
+            });
+        }
+
+        //取消收藏
+        window.delCollect = function (postId) {
+            var $ = layui.$;
+            $.ajax({
+                type: 'POST',//方法类型
+                url: '/delCollect/' + postId,
+                success: function (result) {
+                    if (result.resultCode == 200) {
+                        layer.confirm('取消收藏成功!将刷新本页面...', {
+                            icon: 3,
+                            skin: 'layui-layer-molv',
+                            title: '提示'
+                        }, function (index) {
+                            layer.close(index);
+                            window.location.reload();
+                        });
+                    } else {
+                        layer.msg(result.message);
+                    }
+                    ;
+                },
+                error: function () {
+                    layer.alert('操作失败!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
+                }
+            });
+        }
+
+    });
+
+
+</script>
+</body>
+</html>

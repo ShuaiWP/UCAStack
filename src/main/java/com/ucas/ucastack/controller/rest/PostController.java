@@ -1,6 +1,13 @@
 package com.ucas.ucastack.controller.rest;
 
-
+import com.ucas.ucastack.common.Constants;
+import com.ucas.ucastack.entity.Post;
+import com.ucas.ucastack.entity.PostCategory;
+import com.ucas.ucastack.entity.User;
+import com.ucas.ucastack.service.*;
+import com.ucas.ucastack.util.PageResult;
+import com.ucas.ucastack.util.Result;
+import com.ucas.ucastack.util.ResultGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -10,151 +17,82 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.List;
 
 @Controller
 public class PostController {
     @Resource
-    private BBSPostService bbsPostService;
+    private PostService postService;
     @Resource
-    private BBSPostCategoryService bbsPostCategoryService;
+    private PostCategoryService postCategoryService;
     @Resource
-    private BBSUserService bbsUserService;
+    private UserService userService;
     @Resource
-    private BBSPostCollectService bbsPostCollectService;
+    private PostCollectService postCollectService;
     @Resource
-    private BBSPostCommentService bbsPostCommentService;
+    private PostCommentService postCommentService;
 
     @GetMapping("detail/{postId}")
     public String postDetail(HttpServletRequest request, @PathVariable(value = "postId") Long postId,
                              @RequestParam(value = "commentPage", required = false, defaultValue = "1") Integer commentPage) {
-        List<BBSPostCategory> bbsPostCategories = bbsPostCategoryService.getBBSPostCategories();
-        if (CollectionUtils.isEmpty(bbsPostCategories)) {
+        List<PostCategory> postCategories = postCategoryService.getPostCategories();
+        if (CollectionUtils.isEmpty(postCategories)) {
             return "error/error_404";
         }
         //将分类数据封装到request域中
-        request.setAttribute("bbsPostCategories", bbsPostCategories);
+        request.setAttribute("postCategories", postCategories);
 
         // 帖子内容
-        BBSPost bbsPost = bbsPostService.getBBSPostForDetail(postId);
-        if (bbsPost == null) {
+        Post post = postService.getPostForDetail(postId);
+        if (post == null) {
             return "error/error_404";
         }
-        request.setAttribute("bbsPost", bbsPost);
+        request.setAttribute("post", post);
         // 发帖用户信息
-        BBSUser bbsUser = bbsUserService.getUserById(bbsPost.getPublishUserId());
-        if (bbsUser == null) {
+        User user = userService.getUserById(post.getPublishUserId());
+        if (user == null) {
             return "error/error_404";
         }
-        request.setAttribute("bbsUser", bbsUser);
+        request.setAttribute("user", user);
 
-        // 是否收藏了本贴
-        BBSUser currentUser = (BBSUser) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
-        request.setAttribute("currentUserCollectFlag", bbsPostCollectService.validUserCollect(currentUser.getUserId(), postId));
+        // 是否收藏了本贴 暂时性注释，测试
+//        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
+//        request.setAttribute("currentUserCollectFlag", postCollectService.validUserCollect(currentUser.getUserId(), postId));
+        request.setAttribute("currentUserCollectFlag", false);
 
         // 本周热议的帖子
-        request.setAttribute("hotTopicBBSPostList", bbsPostService.getHotTopicBBSPostList());
+        request.setAttribute("hotTopicPostList", postService.getHotTopicPostList());
 
         // 评论数据
-        PageResult commentsPage = bbsPostCommentService.getCommentsByPostId(postId, commentPage);
+        PageResult commentsPage = postCommentService.getCommentsByPostId(postId, commentPage);
         request.setAttribute("commentsPage", commentsPage);
 
-        return "jie/detail";
+        return "postPages/detail";
     }
 
     @GetMapping("editPostPage/{postId}")
     public String editPostPage(HttpServletRequest request, @PathVariable(value = "postId") Long postId) {
-        BBSUser bbsUser = (BBSUser) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
-        List<BBSPostCategory> bbsPostCategories = bbsPostCategoryService.getBBSPostCategories();
-        if (CollectionUtils.isEmpty(bbsPostCategories)) {
+//        User user = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
+        List<PostCategory> postCategories = postCategoryService.getPostCategories();
+        if (CollectionUtils.isEmpty(postCategories)) {
             return "error/error_404";
         }
         //将分类数据封装到request域中
-        request.setAttribute("bbsPostCategories", bbsPostCategories);
+        request.setAttribute("postCategories", postCategories);
         if (null == postId || postId < 0) {
             return "error/error_404";
         }
-        BBSPost bbsPost = bbsPostService.getBBSPostById(postId);
-        if (bbsPost == null) {
+        Post post = postService.getPostById(postId);
+        if (post == null) {
             return "error/error_404";
         }
-        if (!bbsUser.getUserId().equals(bbsPost.getPublishUserId())) {
-            request.setAttribute("message", "非本人发帖，无权限修改");
-            return "error/error";
-        }
-        request.setAttribute("bbsPost", bbsPost);
+//        if (!user.getUserId().equals(post.getPublishUserId())) {
+//            request.setAttribute("message", "非本人发帖，无权限修改");
+//            return "error/error";
+//        }
+        request.setAttribute("post", post);
         request.setAttribute("postId", postId);
-        return "jie/edit";
-    }
-
-    @GetMapping("/addPostPage")
-    public String addPostPage(HttpServletRequest request) {
-        List<BBSPostCategory> bbsPostCategories = bbsPostCategoryService.getBBSPostCategories();
-        if (CollectionUtils.isEmpty(bbsPostCategories)) {
-            return "error/error_404";
-        }
-        //将分类数据封装到request域中
-        request.setAttribute("bbsPostCategories", bbsPostCategories);
-        return "jie/add";
-    }
-
-    @PostMapping("/addPost")
-    @ResponseBody
-    public Result addPost(@RequestParam("postTitle") String postTitle,
-                          @RequestParam("postCategoryId") Integer postCategoryId,
-                          @RequestParam("postContent") String postContent,
-                          @RequestParam("verifyCode") String verifyCode,
-                          HttpSession httpSession) {
-        if (!StringUtils.hasLength(postTitle)) {
-            return ResultGenerator.genFailResult("postTitle参数错误");
-        }
-        if (null == postCategoryId || postCategoryId < 0) {
-            return ResultGenerator.genFailResult("postCategoryId参数错误");
-        }
-        BBSPostCategory bbsPostCategory = bbsPostCategoryService.selectById(postCategoryId);
-        if (null == bbsPostCategory) {
-            return ResultGenerator.genFailResult("postCategoryId参数错误");
-        }
-        if (!StringUtils.hasLength(postContent)) {
-            return ResultGenerator.genFailResult("postContent参数错误");
-        }
-        if (postTitle.trim().length() > 32) {
-            return ResultGenerator.genFailResult("标题过长");
-        }
-        if (postContent.trim().length() > 100000) {
-            return ResultGenerator.genFailResult("内容过长");
-        }
-        String kaptchaCode = httpSession.getAttribute(Constants.VERIFY_CODE_KEY) + "";
-        if (!StringUtils.hasLength(kaptchaCode) || !verifyCode.equals(kaptchaCode)) {
-            return ResultGenerator.genFailResult(ServiceResultEnum.LOGIN_VERIFY_CODE_ERROR.getResult());
-        }
-        BBSUser bbsUser = (BBSUser) httpSession.getAttribute(Constants.USER_SESSION_KEY);
-        BBSPost bbsPost = new BBSPost();
-        bbsPost.setPublishUserId(bbsUser.getUserId());
-        bbsPost.setPostTitle(postTitle);
-        bbsPost.setPostContent(postContent);
-        bbsPost.setPostCategoryId(postCategoryId);
-        bbsPost.setPostCategoryName(bbsPostCategory.getCategoryName());
-        if (bbsPostService.savePost(bbsPost) > 0) {
-            httpSession.removeAttribute(Constants.VERIFY_CODE_KEY);//清空session中的验证码信息
-            return ResultGenerator.genSuccessResult();
-        } else {
-            return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
-        }
-    }
-
-    @PostMapping("/delPost/{postId}")
-    @ResponseBody
-    public Result delPost(@PathVariable("postId") Long postId,
-                          HttpSession httpSession) {
-        if (null == postId || postId < 0) {
-            return ResultGenerator.genFailResult("postId参数错误");
-        }
-        BBSUser bbsUser = (BBSUser) httpSession.getAttribute(Constants.USER_SESSION_KEY);
-        if (bbsPostService.delBBSPost(bbsUser.getUserId(), postId) > 0) {
-            return ResultGenerator.genSuccessResult();
-        } else {
-            return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
-        }
+        return "postPages/edit";
     }
 
     @PostMapping("/editPost")
@@ -163,27 +101,26 @@ public class PostController {
                            @RequestParam("postTitle") String postTitle,
                            @RequestParam("postCategoryId") Integer postCategoryId,
                            @RequestParam("postContent") String postContent,
-                           @RequestParam("verifyCode") String verifyCode,
                            HttpSession httpSession) {
-        BBSUser bbsUser = (BBSUser) httpSession.getAttribute(Constants.USER_SESSION_KEY);
+//        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
         if (null == postId || postId < 0) {
             return ResultGenerator.genFailResult("postId参数错误");
         }
-        BBSPost temp = bbsPostService.getBBSPostById(postId);
+        Post temp = postService.getPostById(postId);
         if (temp == null) {
             return ResultGenerator.genFailResult("postId参数错误");
         }
-        if (!bbsUser.getUserId().equals(temp.getPublishUserId())) {
-            return ResultGenerator.genFailResult("非本人发帖，无权限修改");
-        }
+//        if (!user.getUserId().equals(temp.getPublishUserId())) {
+//            return ResultGenerator.genFailResult("非本人发帖，无权限修改");
+//        }
         if (!StringUtils.hasLength(postTitle)) {
             return ResultGenerator.genFailResult("postTitle参数错误");
         }
         if (null == postCategoryId || postCategoryId < 0) {
             return ResultGenerator.genFailResult("postCategoryId参数错误");
         }
-        BBSPostCategory bbsPostCategory = bbsPostCategoryService.selectById(postCategoryId);
-        if (null == bbsPostCategory) {
+        PostCategory postCategory = postCategoryService.selectById(postCategoryId);
+        if (null == postCategory) {
             return ResultGenerator.genFailResult("postCategoryId参数错误");
         }
         if (!StringUtils.hasLength(postContent)) {
@@ -195,20 +132,93 @@ public class PostController {
         if (postContent.trim().length() > 100000) {
             return ResultGenerator.genFailResult("内容过长");
         }
-        String kaptchaCode = httpSession.getAttribute(Constants.VERIFY_CODE_KEY) + "";
-        if (!StringUtils.hasLength(kaptchaCode) || !verifyCode.equals(kaptchaCode)) {
-            return ResultGenerator.genFailResult(ServiceResultEnum.LOGIN_VERIFY_CODE_ERROR.getResult());
-        }
+//        String kaptchaCode = httpSession.getAttribute(Constants.VERIFY_CODE_KEY) + "";
+//        if (!StringUtils.hasLength(kaptchaCode) || !verifyCode.equals(kaptchaCode)) {
+//            return ResultGenerator.genFailResult(ServiceResultEnum.LOGIN_VERIFY_CODE_ERROR.getResult());
+//        }
         temp.setPostTitle(postTitle);
         temp.setPostContent(postContent);
         temp.setPostCategoryId(postCategoryId);
-        temp.setPostCategoryName(bbsPostCategory.getCategoryName());
+        temp.setPostCategoryName(postCategory.getCategoryName());
         temp.setLastUpdateTime(new Date());
-        if (bbsPostService.updateBBSPost(temp) > 0) {
-            httpSession.removeAttribute(Constants.VERIFY_CODE_KEY);//清空session中的验证码信息
+        if (postService.updatePost(temp) > 0) {
+//            httpSession.removeAttribute(Constants.VERIFY_CODE_KEY);//清空session中的验证码信息
             return ResultGenerator.genSuccessResult();
         } else {
             return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
         }
     }
+//
+//    @GetMapping("/addPostPage")
+//    public String addPostPage(HttpServletRequest request) {
+//        List<BBSPostCategory> postCategories = postCategoryService.getBBSPostCategories();
+//        if (CollectionUtils.isEmpty(postCategories)) {
+//            return "error/error_404";
+//        }
+//        //将分类数据封装到request域中
+//        request.setAttribute("bbsPostCategories", postCategories);
+//        return "jie/add";
+//    }
+//
+//    @PostMapping("/addPost")
+//    @ResponseBody
+//    public Result addPost(@RequestParam("postTitle") String postTitle,
+//                          @RequestParam("postCategoryId") Integer postCategoryId,
+//                          @RequestParam("postContent") String postContent,
+//                          @RequestParam("verifyCode") String verifyCode,
+//                          HttpSession httpSession) {
+//        if (!StringUtils.hasLength(postTitle)) {
+//            return ResultGenerator.genFailResult("postTitle参数错误");
+//        }
+//        if (null == postCategoryId || postCategoryId < 0) {
+//            return ResultGenerator.genFailResult("postCategoryId参数错误");
+//        }
+//        BBSPostCategory bbsPostCategory = postCategoryService.selectById(postCategoryId);
+//        if (null == bbsPostCategory) {
+//            return ResultGenerator.genFailResult("postCategoryId参数错误");
+//        }
+//        if (!StringUtils.hasLength(postContent)) {
+//            return ResultGenerator.genFailResult("postContent参数错误");
+//        }
+//        if (postTitle.trim().length() > 32) {
+//            return ResultGenerator.genFailResult("标题过长");
+//        }
+//        if (postContent.trim().length() > 100000) {
+//            return ResultGenerator.genFailResult("内容过长");
+//        }
+//        String kaptchaCode = httpSession.getAttribute(Constants.VERIFY_CODE_KEY) + "";
+//        if (!StringUtils.hasLength(kaptchaCode) || !verifyCode.equals(kaptchaCode)) {
+//            return ResultGenerator.genFailResult(ServiceResultEnum.LOGIN_VERIFY_CODE_ERROR.getResult());
+//        }
+//        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
+//        Post post = new Post();
+//        post.setPublishUserId(user.getUserId());
+//        post.setPostTitle(postTitle);
+//        post.setPostContent(postContent);
+//        post.setPostCategoryId(postCategoryId);
+//        post.setPostCategoryName(bbsPostCategory.getCategoryName());
+//        if (postService.savePost(post) > 0) {
+//            httpSession.removeAttribute(Constants.VERIFY_CODE_KEY);//清空session中的验证码信息
+//            return ResultGenerator.genSuccessResult();
+//        } else {
+//            return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
+//        }
+//    }
+//
+//    @PostMapping("/delPost/{postId}")
+//    @ResponseBody
+//    public Result delPost(@PathVariable("postId") Long postId,
+//                          HttpSession httpSession) {
+//        if (null == postId || postId < 0) {
+//            return ResultGenerator.genFailResult("postId参数错误");
+//        }
+//        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
+//        if (postService.delBBSPost(user.getUserId(), postId) > 0) {
+//            return ResultGenerator.genSuccessResult();
+//        } else {
+//            return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
+//        }
+//    }
+
+
 }
