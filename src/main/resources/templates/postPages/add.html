@@ -31,8 +31,8 @@
                                         <select name="class" lay-filter="column"
                                                 id="postCategoryId">
                                             <option value="0"></option>
-                                            <th:block th:unless="${null == bbsPostCategories}">
-                                                <th:block th:each="c : ${bbsPostCategories}">
+                                            <th:block th:unless="${null == postCategories}">
+                                                <th:block th:each="c : ${postCategories}">
                                                     <option th:value="${c.categoryId}" th:text="${c.categoryName}">提问
                                                     </option>
                                                 </th:block>
@@ -49,20 +49,20 @@
                                 </div>
                             </div>
                             <div class="layui-form-item" style="margin-top: 56px;">
-                                <label for="verifyCode" class="layui-form-label">验证码</label>
-                                <div class="layui-input-inline">
-                                    <input type="text" id="verifyCode" name="verifyCode" required
-                                           placeholder="验证码" autocomplete="off" class="layui-input">
-                                </div>
-                                <div class="layui-form-mid">
-                                    <span style="color: #c00;"><img data-tooltip="看不清楚？换一张"
-                                                                    th:src="@{/common/captcha}"
-                                                                    onclick="this.src='/common/captcha?d='+new Date()*1"
-                                                                    alt="单击图片刷新！"></span>
-                                </div>
+                                <!--<label for="verifyCode" class="layui-form-label">验证码</label>-->
+                                <!--<div class="layui-input-inline">-->
+                                    <!--<input type="text" id="verifyCode" name="verifyCode" required-->
+                                           <!--placeholder="验证码" autocomplete="off" class="layui-input">-->
+                                <!--</div>-->
+                                <!--<div class="layui-form-mid">-->
+                                    <!--<span style="color: #c00;"><img data-tooltip="看不清楚？换一张"-->
+                                                                    <!--th:src="@{/common/captcha}"-->
+                                                                    <!--onclick="this.src='/common/captcha?d='+new Date()*1"-->
+                                                                    <!--alt="单击图片刷新！"></span>-->
+                                <!--</div>-->
                             </div>
                             <div class="layui-form-item">
-                                <button class="layui-btn" lay-filter="*" lay-submit onclick="addBBSPost()">立即发布</button>
+                                <button class="layui-btn" lay-filter="*" lay-submit onclick="addPost()">立即发布</button>
                             </div>
                         </form>
                     </div>
@@ -73,7 +73,7 @@
 </div>
 
 <div class="fly-footer">
-    <p>My-BBS社区 2021 &copy; <a href="https://github.com/ZHENFENG13/My-BBS" target="_blank">十三</a></p>
+    <p>国科大论坛 2022 &copy; <a href="https://github.com/ShuaiWP/UCAStack" target="_blank">github链接</a></p>
 </div>
 
 <script th:src="@{/js/public.js}"></script>
@@ -131,17 +131,17 @@
         }
         editorD.create();
 
-        window.addBBSPost = function () {
+        window.addPost = function () {
             var postTitle = $("#postTitle").val();
             if (isNull(postTitle)) {
                 layer.alert('请输入标题!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
                 return;
             }
-            var verifyCode = $("#verifyCode").val();
-            if (!validLength(verifyCode, 5)) {
-                layer.alert('请输入正确的验证码!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
-                return;
-            }
+            // var verifyCode = $("#verifyCode").val();
+            // if (!validLength(verifyCode, 5)) {
+            //     layer.alert('请输入正确的验证码!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
+            //     return;
+            // }
             var postCategoryId = $('#postCategoryId option:selected').val();
             if (isNull(postCategoryId)) {
                 layer.alert('请选择分类!', {title: '提醒', skin: 'layui-layer-molv', icon: 2});
@@ -155,8 +155,12 @@
                 return;
             }
             var url = '/addPost';
+            // var data = {
+            //     "postTitle": postTitle, "verifyCode": verifyCode,
+            //     "postCategoryId": postCategoryId, "postContent": postContent
+            // };
             var data = {
-                "postTitle": postTitle, "verifyCode": verifyCode,
+                "postTitle": postTitle,
                 "postCategoryId": postCategoryId, "postContent": postContent
             };
             $.ajax({
@@ -165,6 +169,8 @@
                 data: data,
                 success: function (result) {
                     if (result.resultCode == 200) {
+                        // alert("发布成功");
+                        // layer.alert('操作成功!', {title: '成功', skin: 'layui-layer-molv', icon: 2});
                         window.location.href = '/index';
                     } else {
                         layer.msg(result.message);

@@ -148,62 +148,62 @@ public class PostController {
             return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
         }
     }
-//
-//    @GetMapping("/addPostPage")
-//    public String addPostPage(HttpServletRequest request) {
-//        List<BBSPostCategory> postCategories = postCategoryService.getBBSPostCategories();
-//        if (CollectionUtils.isEmpty(postCategories)) {
-//            return "error/error_404";
-//        }
-//        //将分类数据封装到request域中
-//        request.setAttribute("bbsPostCategories", postCategories);
-//        return "jie/add";
-//    }
-//
-//    @PostMapping("/addPost")
-//    @ResponseBody
-//    public Result addPost(@RequestParam("postTitle") String postTitle,
-//                          @RequestParam("postCategoryId") Integer postCategoryId,
-//                          @RequestParam("postContent") String postContent,
-//                          @RequestParam("verifyCode") String verifyCode,
-//                          HttpSession httpSession) {
-//        if (!StringUtils.hasLength(postTitle)) {
-//            return ResultGenerator.genFailResult("postTitle参数错误");
-//        }
-//        if (null == postCategoryId || postCategoryId < 0) {
-//            return ResultGenerator.genFailResult("postCategoryId参数错误");
-//        }
-//        BBSPostCategory bbsPostCategory = postCategoryService.selectById(postCategoryId);
-//        if (null == bbsPostCategory) {
-//            return ResultGenerator.genFailResult("postCategoryId参数错误");
-//        }
-//        if (!StringUtils.hasLength(postContent)) {
-//            return ResultGenerator.genFailResult("postContent参数错误");
-//        }
-//        if (postTitle.trim().length() > 32) {
-//            return ResultGenerator.genFailResult("标题过长");
-//        }
-//        if (postContent.trim().length() > 100000) {
-//            return ResultGenerator.genFailResult("内容过长");
-//        }
+
+    @GetMapping("/addPostPage")
+    public String addPostPage(HttpServletRequest request) {
+        List<PostCategory> postCategories = postCategoryService.getPostCategories();
+        if (CollectionUtils.isEmpty(postCategories)) {
+            return "error/error_404";
+        }
+        //将分类数据封装到request域中
+        request.setAttribute("postCategories", postCategories);
+        return "postPages/add";
+    }
+
+    @PostMapping("/addPost")
+    @ResponseBody
+    public Result addPost(@RequestParam("postTitle") String postTitle,
+                          @RequestParam("postCategoryId") Integer postCategoryId,
+                          @RequestParam("postContent") String postContent,
+                          HttpSession httpSession) {
+        if (!StringUtils.hasLength(postTitle)) {
+            return ResultGenerator.genFailResult("postTitle参数错误");
+        }
+        if (null == postCategoryId || postCategoryId < 0) {
+            return ResultGenerator.genFailResult("postCategoryId参数错误");
+        }
+        PostCategory postCategory = postCategoryService.selectById(postCategoryId);
+        if (null == postCategory) {
+            return ResultGenerator.genFailResult("postCategoryId参数错误");
+        }
+        if (!StringUtils.hasLength(postContent)) {
+            return ResultGenerator.genFailResult("postContent参数错误");
+        }
+        if (postTitle.trim().length() > 32) {
+            return ResultGenerator.genFailResult("标题过长");
+        }
+        if (postContent.trim().length() > 100000) {
+            return ResultGenerator.genFailResult("内容过长");
+        }
 //        String kaptchaCode = httpSession.getAttribute(Constants.VERIFY_CODE_KEY) + "";
 //        if (!StringUtils.hasLength(kaptchaCode) || !verifyCode.equals(kaptchaCode)) {
 //            return ResultGenerator.genFailResult(ServiceResultEnum.LOGIN_VERIFY_CODE_ERROR.getResult());
 //        }
 //        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
-//        Post post = new Post();
+        Post post = new Post();
 //        post.setPublishUserId(user.getUserId());
-//        post.setPostTitle(postTitle);
-//        post.setPostContent(postContent);
-//        post.setPostCategoryId(postCategoryId);
-//        post.setPostCategoryName(bbsPostCategory.getCategoryName());
-//        if (postService.savePost(post) > 0) {
+        post.setPublishUserId((long)4);
+        post.setPostTitle(postTitle);
+        post.setPostContent(postContent);
+        post.setPostCategoryId(postCategoryId);
+        post.setPostCategoryName(postCategory.getCategoryName());
+        if (postService.savePost(post) > 0) {
 //            httpSession.removeAttribute(Constants.VERIFY_CODE_KEY);//清空session中的验证码信息
-//            return ResultGenerator.genSuccessResult();
-//        } else {
-//            return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
-//        }
-//    }
+            return ResultGenerator.genSuccessResult();
+        } else {
+            return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
+        }
+    }
 //
 //    @PostMapping("/delPost/{postId}")
 //    @ResponseBody
