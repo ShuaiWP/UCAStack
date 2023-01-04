@@ -204,21 +204,32 @@ public class PostController {
             return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
         }
     }
-//
-//    @PostMapping("/delPost/{postId}")
-//    @ResponseBody
-//    public Result delPost(@PathVariable("postId") Long postId,
-//                          HttpSession httpSession) {
-//        if (null == postId || postId < 0) {
-//            return ResultGenerator.genFailResult("postId参数错误");
-//        }
-//        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
-//        if (postService.delBBSPost(user.getUserId(), postId) > 0) {
+
+    /**
+     * 删除功能在用户中心界面的我发的帖里面
+     * @param postId
+     * @param httpSession
+     * @return
+     */
+    @PostMapping("/delPost/{postId}")
+    @ResponseBody
+    public Result delPost(@PathVariable("postId") Long postId,
+                          HttpSession httpSession) {
+        if (null == postId || postId < 0) {
+            return ResultGenerator.genFailResult("postId参数错误");
+        }
+        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
+        if (postService.delPost(user.getUserId(), postId) > 0) {
+            return ResultGenerator.genSuccessResult();
+        } else {
+            return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
+        }
+//        if (postService.delPost((long)4, (long)20) > 0) {
 //            return ResultGenerator.genSuccessResult();
 //        } else {
 //            return ResultGenerator.genFailResult("请求失败，请检查参数及账号是否有操作权限");
 //        }
-//    }
+    }
 
 
 }
