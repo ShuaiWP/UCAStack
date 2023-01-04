@@ -22,6 +22,9 @@ public interface PostService {
     // 首页帖子列表
     PageResult getPostPageForIndex(PageQueryUtil pageUtil);
 
+    // 首页帖子列表，通过es搜索得到
+    PageResult getPostPageByElasticSearchForIndex(PageQueryUtil pageUtil);
+
     // 近期热议帖子列表
     List getHotTopicPostList();
 

@@ -27,7 +27,7 @@
         </ul>
 
         <div class="fly-column-right layui-hide-xs">
-            <span class="fly-search"><i class="layui-icon"></i></span>
+            <span id="esSearch"><i class="layui-icon"></i></span>
             <a th:href="@{/addPostPage}" class="layui-btn">发布新帖</a>
         </div>
     </div>
@@ -176,7 +176,7 @@
         if (device.ie && device.ie < 8) {
             layer.alert('如果您非得使用 IE 浏览器访问社区，那么请使用 IE8+');
         }
-        //搜索
+        //搜索 通过数据库like实现
         $('#mysearch').on('click', function () {
             layer.open({
                 type: 1
@@ -187,6 +187,32 @@
                 , maxWidth: 10000
                 , skin: 'fly-layer-search'
                 , content: ['<form action="/index">'
+                    , '<input autocomplete="off" placeholder="搜索内容，回车跳转" type="text" name="keyword">'
+                    , '</form>'].join('')
+                , success: function (layero) {
+                    var input = layero.find('input');
+                    input.focus();
+                    layero.find('form').submit(function () {
+                        var val = input.val();
+                        if (val.replace(/\s/g, '') === '') {
+                            return false;
+                        }
+                        input.val(input.val());
+                    });
+                }
+            })
+        });
+        // 搜索 esSearch 实现
+        $('#esSearch').on('click', function () {
+            layer.open({
+                type: 1
+                , title: false
+                , closeBtn: false
+                //,shade: [0.1, '#fff']
+                , shadeClose: true
+                , maxWidth: 10000
+                , skin: 'fly-layer-search'
+                , content: ['<form action="/index/esSearch">'
                     , '<input autocomplete="off" placeholder="搜索内容，回车跳转" type="text" name="keyword">'
                     , '</form>'].join('')
                 , success: function (layero) {

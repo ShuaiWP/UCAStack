@@ -6,6 +6,7 @@ import com.ucas.ucastack.dao.UserMapper;
 import com.ucas.ucastack.entity.*;
 import com.ucas.ucastack.service.PostService;
 import com.ucas.ucastack.util.BeanUtil;
+import com.ucas.ucastack.util.ElasticSearchHelper;
 import com.ucas.ucastack.util.PageQueryUtil;
 import com.ucas.ucastack.util.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +100,38 @@ public class PostServiceImpl implements PostService {
         //查询帖子数据
         int total = postMapper.getTotalPostsNum(pageUtil);
         List<Post> postList = postMapper.findPostList(pageUtil);
+        List<PostListEntity> postListEntities = new ArrayList<>();
+        //数据格式转换
+        if (!CollectionUtils.isEmpty(postList)) {
+            postListEntities = BeanUtil.copyList(postList, PostListEntity.class);
+            List<Long> userIds = postListEntities.stream().map(PostListEntity::getPublishUserId).collect(Collectors.toList());
+            //查询user数据
+            List<User> users = userMapper.selectByPrimaryKeys(userIds);
+            if (!CollectionUtils.isEmpty(users)) {
+                //封装user数据
+                Map<Long, User> userMap = users.stream().collect(Collectors.toMap(User::getUserId, Function.identity(), (entity1, entity2) -> entity1));
+                for (PostListEntity postListEntity : postListEntities) {
+                    if (userMap.containsKey(postListEntity.getPublishUserId())) {
+                        //设置头像字段和昵称字段
+                        User tempUser = userMap.get(postListEntity.getPublishUserId());
+                        postListEntity.setHeadImgUrl(tempUser.getHeadImgUrl());
+                        postListEntity.setNickName(tempUser.getNickName());
+                    }
+                }
+            }
+        }
+        PageResult pageResult = new PageResult(postListEntities, total, pageUtil.getLimit(), pageUtil.getPage());
+        return pageResult;
+    }
+
+    @Override
+    public PageResult getPostPageByElasticSearchForIndex(PageQueryUtil pageUtil) {
+        //查询帖子数据
+        Map<String, Object> map = ElasticSearchHelper.searchByES(pageUtil);
+        int total = (Integer)map.get("total");
+        List<Post> postList = (List<Post>)map.get("postList");
+//        int total = postMapper.getTotalPostsNum(pageUtil);
+//        List<Post> postList = postMapper.findPostList(pageUtil);
         List<PostListEntity> postListEntities = new ArrayList<>();
         //数据格式转换
         if (!CollectionUtils.isEmpty(postList)) {
