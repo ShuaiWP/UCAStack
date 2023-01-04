@@ -2,7 +2,8 @@
 SQLyog Ultimate v12.09 (64 bit)
 MySQL - 5.6.21-log : Database - my_bbs_db
 *********************************************************************
-*/
+*/
+
 
 /*!40101 SET NAMES utf8 */;
 
@@ -61,7 +62,11 @@ CREATE TABLE `tb_bbs_user` (
 
 /*Data for the table `tb_bbs_user` */
 
-insert  into `tb_bbs_user`(`user_id`,`login_name`,`password_md5`,`nick_name`,`head_img_url`,`gender`,`location`,`introduce`,`user_status`,`last_login_time`,`create_time`) values (1,'coder13@qq.com','e10adc3949ba59abbe56e057f20f883e','coder13','/images/avatar/default.png','男','杭州','我不怕千万人阻挡，只怕自己投降。',0,'2021-08-10 16:33:20','2021-08-10 14:49:38'),(2,'coder14@qq.com','e10adc3949ba59abbe56e057f20f883e','coder14','/images/avatar/default.png','未知','未知','这个人很懒，什么都没留下~',0,'2021-08-10 16:21:57','2021-08-10 15:57:48'),(3,'coder15@qq.com','e10adc3949ba59abbe56e057f20f883e','coder15','/images/avatar/default.png','男','未知','这个人很懒，什么都没留下~',0,'2021-08-10 16:23:32','2021-08-10 16:09:41'),(4,'3840@qq.com','e10adc3949ba59abbe56e057f20f883e','lucy','/images/avatar/default.png','未知','未知','这个人很懒，什么都没留下~',0,'2023-01-04 10:33:16','2022-11-16 19:01:38');
+insert  into `tb_bbs_user`(`user_id`,`login_name`,`password_md5`,`nick_name`,`head_img_url`,`gender`,`location`,`introduce`,`user_status`,`last_login_time`,`create_time`) values
+(1,'coder13@qq.com','e10adc3949ba59abbe56e057f20f883e','coder13','/images/avatar/default.png','男','杭州','我不怕千万人阻挡，只怕自己投降。',0,'2021-08-10 16:33:20','2021-08-10 14:49:38'),
+(2,'coder14@qq.com','e10adc3949ba59abbe56e057f20f883e','coder14','/images/avatar/default.png','未知','未知','这个人很懒，什么都没留下~',0,'2021-08-10 16:21:57','2021-08-10 15:57:48'),
+(3,'coder15@qq.com','e10adc3949ba59abbe56e057f20f883e','coder15','/images/avatar/default.png','男','未知','这个人很懒，什么都没留下~',0,'2021-08-10 16:23:32','2021-08-10 16:09:41'),
+(4,'3840@qq.com','e10adc3949ba59abbe56e057f20f883e','lucy','/images/avatar/default.png','未知','未知','这个人很懒，什么都没留下~',0,'2023-01-04 10:33:16','2022-11-16 19:01:38');
 
 /*Table structure for table `tb_post_category` */
 

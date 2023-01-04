@@ -22,11 +22,18 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/userSet")
+    @ResponseBody
     public String userSetPage(HttpServletRequest request) {
-        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
+        //假数据
+//        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
+        User currentUser = userService.getUserById(2L);
         request.setAttribute("bbsUser", currentUser);
-        return "user/set";
+
+//        return "user/set";
+        System.out.println(currentUser);
+        return currentUser.getLoginName();
     }
+
 
     @PostMapping("/updatePassword")
     @ResponseBody
@@ -35,7 +42,10 @@ public class UserController {
         if (!StringUtils.hasLength(originalPassword) || !StringUtils.hasLength(newPassword)) {
             return ResultGenerator.genFailResult("参数不能为空");
         }
-        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
+        //假数据
+//        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
+        User currentUser = userService.getUserById(1L);
+
         if (userService.updatePassword(currentUser.getUserId(), originalPassword, newPassword)) {
             //修改成功后清空session中的数据，前端控制跳转至登录页
             request.getSession().removeAttribute(Constants.USER_SESSION_KEY);
