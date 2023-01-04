@@ -19,7 +19,7 @@ public interface UserService {
      * 修改头像
      */
     Boolean updateUserHeadImg(User User, HttpSession httpSession);
-
+    
     /**
      * 修改密码
      */
