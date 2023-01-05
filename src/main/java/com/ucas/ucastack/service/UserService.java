@@ -13,12 +13,12 @@ public interface UserService {
     /**
      * 修改用户信息
      */
-    Boolean updateUserInfo(User User, HttpSession httpSession);
+    Boolean updateUserInfo(User user, HttpSession httpSession);
 
     /**
      * 修改头像
      */
-    Boolean updateUserHeadImg(User User, HttpSession httpSession);
+    Boolean updateUserHeadImg(User user, HttpSession httpSession);
     
     /**
      * 修改密码
