@@ -41,6 +41,13 @@ public class PostServiceImpl implements PostService {
             //分类数据错误
             return 0;
         }
+
+        Post existPost = postMapper.selectByPrimaryKey(post.getPostId());
+        if (existPost != null) {
+            // the post already existed
+            return 0;
+        }
+
         return postMapper.insertSelective(post);
     }
 
