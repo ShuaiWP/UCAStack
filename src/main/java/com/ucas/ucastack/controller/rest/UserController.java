@@ -31,7 +31,7 @@ public class UserController {
     private PostCollectService postCollectService;
 
     @GetMapping("/userCenter/{userId}")
-    @ResponseBody
+//    @ResponseBody
     public String userCenterPage(HttpServletRequest request, @PathVariable("userId") Long userId) {
         //基本用户信息
         User bbsUser = userService.getUserById(userId);
@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @GetMapping("/userSet")
-    @ResponseBody
+//    @ResponseBody
     public String userSetPage(HttpServletRequest request) {
         //假数据
 //        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
@@ -65,7 +65,7 @@ public class UserController {
     }
 
     @GetMapping("/myCenter")
-    @ResponseBody
+//    @ResponseBody
     public String myCenterPage(HttpServletRequest request) {
 
         //基本用户信息
