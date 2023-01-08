@@ -148,6 +148,10 @@
                 #{createTime,jdbcType=TIMESTAMP}, #{postContent,jdbcType=LONGVARCHAR})
     </insert>
     <insert id="insertSelective" parameterType="com.ucas.ucastack.entity.Post">
+		<selectKey keyProperty="postId" keyColumn="post_id" order="AFTER" resultType="java.lang.Long">
+			SELECT LAST_INSERT_ID()	
+		</selectKey>
+
         insert into tb_bbs_post
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="postId != null">

@@ -4,6 +4,7 @@ import com.ucas.ucastack.dao.PostCategoryMapper;
 import com.ucas.ucastack.dao.PostMapper;
 import com.ucas.ucastack.dao.UserMapper;
 import com.ucas.ucastack.entity.*;
+import com.ucas.ucastack.service.ElasticsearchService;
 import com.ucas.ucastack.service.PostService;
 import com.ucas.ucastack.util.BeanUtil;
 import com.ucas.ucastack.util.ElasticSearchHelper;
@@ -28,6 +29,8 @@ public class PostServiceImpl implements PostService {
     private PostMapper postMapper;
     @Autowired
     private UserMapper userMapper;
+	@Autowired
+	private ElasticsearchService elasticsearchService;
 
     @Override
     public int savePost(Post post) {
@@ -49,7 +52,12 @@ public class PostServiceImpl implements PostService {
             return 0;
         }
 
-        return postMapper.insertSelective(post);
+        int result= postMapper.insertSelective(post);
+		if (result > 0) {
+			Post postInserted = postMapper.selectByPrimaryKey(post.getPostId());
+			elasticsearchService.savePost(postInserted);
+		}
+		return result;
     }
 
     @Override
@@ -63,6 +71,7 @@ public class PostServiceImpl implements PostService {
         if (post != null) {
             post.setPostViews(post.getPostViews() + 1);
             postMapper.updateByPrimaryKeySelective(post);
+			elasticsearchService.updatePost(post);
         }
         return post;
     }
@@ -82,7 +91,12 @@ public class PostServiceImpl implements PostService {
             return 0;
         }
 
-        return postMapper.updateByPrimaryKeySelective(post);
+        int result= postMapper.updateByPrimaryKeySelective(post);
+		if (result > 0) {
+			// update in es
+			elasticsearchService.updatePost(post);
+		}
+		return result;
     }
 
     @Override
@@ -97,7 +111,12 @@ public class PostServiceImpl implements PostService {
         Post post = postMapper.selectByPrimaryKey(postId);
         // 对象不为空且发帖人为当前登录用户才可以删除
         if (post != null && post.getPublishUserId().equals(userId)) {
-            return postMapper.deleteByPrimaryKey(postId);
+			int result= postMapper.deleteByPrimaryKey(postId);
+			if (result > 0) {
+				// delete post in es
+				elasticsearchService.deleteByPostId(postId);
+			}
+			return result;
         }
         return 0;
     }
@@ -134,11 +153,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public PageResult getPostPageByElasticSearchForIndex(PageQueryUtil pageUtil) {
         //查询帖子数据
-        Map<String, Object> map = ElasticSearchHelper.searchByES(pageUtil);
-        int total = (Integer)map.get("total");
-        List<Post> postList = (List<Post>)map.get("postList");
-//        int total = postMapper.getTotalPostsNum(pageUtil);
-//        List<Post> postList = postMapper.findPostList(pageUtil);
+        List<Post> postList = elasticsearchService.searchPost(pageUtil);
+       int total = postList.size();
         List<PostListEntity> postListEntities = new ArrayList<>();
         //数据格式转换
         if (!CollectionUtils.isEmpty(postList)) {

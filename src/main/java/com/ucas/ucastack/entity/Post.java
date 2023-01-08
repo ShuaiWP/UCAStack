@@ -1,132 +1,164 @@
 package com.ucas.ucastack.entity;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
 import java.util.Date;
+
 // 帖子类，对应数据库中的post表
+@Document(indexName = "post")
 public class Post {
-    private Long postId;
-    private Long publishUserId;
-    private String postTitle;
-    private Integer postCategoryId;
-    private String postCategoryName;
-    private Byte postStatus;
-    private Long postViews;
-    private Long postComments;
-    private Long postCollects;
-    private Date lastUpdateTime;
-    private Date createTime;
-    private String postContent;
 
-    public Long getPostId() {
-        return postId;
-    }
+	@Id
+	private Long postId;
 
-    public void setPostId(Long postId) {
-        this.postId = postId;
-    }
+	@Field(type = FieldType.Long)
+	private Long publishUserId;
 
-    public Long getPublishUserId() {
-        return publishUserId;
-    }
+	@Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
+	private String postTitle;
 
-    public void setPublishUserId(Long publishUserId) {
-        this.publishUserId = publishUserId;
-    }
+	@Field(type = FieldType.Integer)
+	private Integer postCategoryId;
 
-    public String getPostTitle() {
-        return postTitle;
-    }
+	@Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
+	private String postCategoryName;
 
-    public void setPostTitle(String postTitle) {
-        this.postTitle = postTitle;
-    }
+	@Field(type = FieldType.Byte)
+	private Byte postStatus;
 
-    public Integer getPostCategoryId() {
-        return postCategoryId;
-    }
+	@Field(type = FieldType.Long)
+	private Long postViews;
 
-    public void setPostCategoryId(Integer postCategoryId) {
-        this.postCategoryId = postCategoryId;
-    }
+	@Field(type = FieldType.Long)
+	private Long postComments;
 
-    public String getPostCategoryName() {
-        return postCategoryName;
-    }
+	@Field(type = FieldType.Long)
+	private Long postCollects;
 
-    public void setPostCategoryName(String postCategoryName) {
-        this.postCategoryName = postCategoryName;
-    }
+	@Field(type = FieldType.Date, format = DateFormat.basic_date_time)
+	private Date lastUpdateTime;
 
-    public Byte getPostStatus() {
-        return postStatus;
-    }
+	@Field(type = FieldType.Date, format = DateFormat.basic_date_time)
+	private Date createTime;
 
-    public void setPostStatus(Byte postStatus) {
-        this.postStatus = postStatus;
-    }
+	@Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
+	private String postContent;
 
-    public Long getPostViews() {
-        return postViews;
-    }
+	public Long getPostId() {
+		return postId;
+	}
 
-    public void setPostViews(Long postViews) {
-        this.postViews = postViews;
-    }
+	public void setPostId(Long postId) {
+		this.postId = postId;
+	}
 
-    public Long getPostComments() {
-        return postComments;
-    }
+	public Long getPublishUserId() {
+		return publishUserId;
+	}
 
-    public void setPostComments(Long postComments) {
-        this.postComments = postComments;
-    }
+	public void setPublishUserId(Long publishUserId) {
+		this.publishUserId = publishUserId;
+	}
 
-    public Long getPostCollects() {
-        return postCollects;
-    }
+	public String getPostTitle() {
+		return postTitle;
+	}
 
-    public void setPostCollects(Long postCollects) {
-        this.postCollects = postCollects;
-    }
+	public void setPostTitle(String postTitle) {
+		this.postTitle = postTitle;
+	}
 
-    public Date getLastUpdateTime() {
-        return lastUpdateTime;
-    }
+	public Integer getPostCategoryId() {
+		return postCategoryId;
+	}
 
-    public void setLastUpdateTime(Date lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
-    }
+	public void setPostCategoryId(Integer postCategoryId) {
+		this.postCategoryId = postCategoryId;
+	}
 
-    public Date getCreateTime() {
-        return createTime;
-    }
+	public String getPostCategoryName() {
+		return postCategoryName;
+	}
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
+	public void setPostCategoryName(String postCategoryName) {
+		this.postCategoryName = postCategoryName;
+	}
 
-    public String getPostContent() {
-        return postContent;
-    }
+	public Byte getPostStatus() {
+		return postStatus;
+	}
 
-    public void setPostContent(String postContent) {
-        this.postContent = postContent;
-    }
+	public void setPostStatus(Byte postStatus) {
+		this.postStatus = postStatus;
+	}
 
-    @Override
-    public String toString() {
-        return "Post{" +
-                "postId=" + postId +
-                ", publishUserId=" + publishUserId +
-                ", postTitle='" + postTitle + '\'' +
-                ", postCategoryId=" + postCategoryId +
-                ", postCategoryName='" + postCategoryName + '\'' +
-                ", postStatus=" + postStatus +
-                ", postViews=" + postViews +
-                ", postComments=" + postComments +
-                ", postCollects=" + postCollects +
-                ", lastUpdateTime=" + lastUpdateTime +
-                ", createTime=" + createTime +
-                ", postContent='" + postContent + '\'' +
-                '}';
-    }
+	public Long getPostViews() {
+		return postViews;
+	}
+
+	public void setPostViews(Long postViews) {
+		this.postViews = postViews;
+	}
+
+	public Long getPostComments() {
+		return postComments;
+	}
+
+	public void setPostComments(Long postComments) {
+		this.postComments = postComments;
+	}
+
+	public Long getPostCollects() {
+		return postCollects;
+	}
+
+	public void setPostCollects(Long postCollects) {
+		this.postCollects = postCollects;
+	}
+
+	public Date getLastUpdateTime() {
+		return lastUpdateTime;
+	}
+
+	public void setLastUpdateTime(Date lastUpdateTime) {
+		this.lastUpdateTime = lastUpdateTime;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getPostContent() {
+		return postContent;
+	}
+
+	public void setPostContent(String postContent) {
+		this.postContent = postContent;
+	}
+
+	@Override
+	public String toString() {
+		return "Post{" +
+				"postId=" + postId +
+				", publishUserId=" + publishUserId +
+				", postTitle='" + postTitle + '\'' +
+				", postCategoryId=" + postCategoryId +
+				", postCategoryName='" + postCategoryName + '\'' +
+				", postStatus=" + postStatus +
+				", postViews=" + postViews +
+				", postComments=" + postComments +
+				", postCollects=" + postCollects +
+				", lastUpdateTime=" + lastUpdateTime +
+				", createTime=" + createTime +
+				", postContent='" + postContent + '\'' +
+				'}';
+	}
 }
