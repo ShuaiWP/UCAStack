@@ -18,6 +18,9 @@ public interface PostCommentMapper {
 	// 将对应的评论记录到数据库，但record中不一定所有字段都是有值的
     int insertSelective(PostComment record);
 
+    // 将对应的评论记录到数据库，但record中不一定所有字段都是有值的
+    int insertIncrement(PostComment record);
+
 	// 根据评论ID查询对应评论
     PostComment selectByPrimaryKey(Long commentId);
 
@@ -35,4 +38,5 @@ public interface PostCommentMapper {
 
 	// 根据用户ID返回该用户近期的所有评论
     List<PostComment> getRecentCommentListByUserId(@Param("userId") Long userId);
+
 }

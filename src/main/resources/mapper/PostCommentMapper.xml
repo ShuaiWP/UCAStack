@@ -111,6 +111,14 @@
       </if>
     </trim>
   </insert>
+  <insert id="insertIncrement" parameterType="com.ucas.ucastack.entity.PostComment" useGeneratedKeys="true" keyProperty="commentId">
+    insert into tb_post_comment (post_id, comment_user_id,
+                                 comment_body, parent_comment_user_id, comment_create_time,
+                                 is_deleted)
+    values (#{postId,jdbcType=BIGINT}, #{commentUserId,jdbcType=BIGINT},
+            #{commentBody,jdbcType=VARCHAR}, #{parentCommentUserId,jdbcType=BIGINT}, #{commentCreateTime,jdbcType=TIMESTAMP},
+            #{isDeleted,jdbcType=TINYINT})
+  </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.ucas.ucastack.entity.PostComment">
     update tb_post_comment
     <set>

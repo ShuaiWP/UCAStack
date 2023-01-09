@@ -2,22 +2,26 @@ package com.ucas.ucastack.task;
 
 import com.ucas.ucastack.dao.PostMapper;
 import com.ucas.ucastack.entity.Post;
+import com.ucas.ucastack.entity.PostComment;
+import com.ucas.ucastack.service.PostService;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
+import us.codecraft.webmagic.selector.Html;
 import us.codecraft.webmagic.selector.JsonPathSelector;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Component
 public class PostProcessor implements PageProcessor {
-
-    @Autowired
-    private PostMapper postMapper;
 
     private Site mySite = Site.me()
             .addCookie("_abfpc", "0062d41a0ac87a0c837f2a91546043b3af70760a_2.0")
@@ -53,16 +57,58 @@ public class PostProcessor implements PageProcessor {
 
         } else {
             String jsonText = page.getJson().get();
+            JsonPathSelector jsonPathSelector;
+
+            // get post id
+            jsonPathSelector = new JsonPathSelector("$.data.id");
+            String postId = jsonPathSelector.select(jsonText);
             // get all comments
-            JsonPathSelector jsonPathSelector = new JsonPathSelector("$.included[?(@.type=='posts')].attributes.contentHtml");
+            jsonPathSelector = new JsonPathSelector("$.included[?(@.type=='posts')].attributes.contentHtml");
             List<String> comments = jsonPathSelector.selectList(jsonText);
+            // get create time of all comments
+            jsonPathSelector = new JsonPathSelector("$.included[?(@.type=='posts')].attributes.createdAt");
+            List<String> commentCreateDates = jsonPathSelector.selectList(jsonText);
+
+            assert comments.size() == commentCreateDates.size();
+
+            List<String> usefulComments = new ArrayList<>();        // list to store "useful" comments
+            List<Date> usefulCreateTime = new ArrayList<>();        // list to store "useful" create time
+            for (int i = 0; i < comments.size(); i++) {
+                // filter the useful comment content (comments that are not reply)
+                Html html = new Html(comments.get(i));
+                if (html.css("a.PostMention").get() == null) {
+                    usefulComments.add(comments.get(i));
+                    // get the creation time of this "useful" comment
+                    usefulCreateTime.add(string2Date(commentCreateDates.get(i)));
+                }
+            }
+
+            List<PostComment> commentValues = new ArrayList<>();
+            // parse json to create entities of Comment
+            for (int i = 1; i < usefulComments.size(); i++) {
+                PostComment postComment = new PostComment();
+                // set comment id ("-1" means the id is set to the max comment_id in database plus 1)
+                postComment.setCommentId(-1L);
+                // set post id
+                postComment.setPostId(Long.parseLong(postId));
+                // set comment user id (uid=1 means the "tourist")
+                postComment.setCommentUserId(1L);
+                // set comment body
+                postComment.setCommentBody(usefulComments.get(i));
+                // set parent comment user id (always 0, meaning no parent)
+                postComment.setParentCommentUserId(0L);
+                // set comment create time
+                postComment.setCommentCreateTime(usefulCreateTime.get(i));
+                // set whether the comment is deleted (always 0, meaning not deleted)
+                postComment.setIsDeleted(new Byte("0"));
+
+                commentValues.add(postComment);
+            }
 
             // parse json to create an entity of Post
             Post post = new Post();
-            // get post id
-            jsonPathSelector = new JsonPathSelector("$.data.id");
-            String id = jsonPathSelector.select(jsonText);
-            post.setPostId(Long.parseLong(id));
+            // set post id
+            post.setPostId(Long.parseLong(postId));
             // set publisher id (uid=1 means the "tourist")
             post.setPublishUserId(1L);
             // get post title
@@ -80,33 +126,35 @@ public class PostProcessor implements PageProcessor {
             String views = jsonPathSelector.select(jsonText);
             post.setPostViews(Long.parseLong(views));
             // get number of post comments
-            // TODO: some comments needed to be removed, the number here is for test
-            jsonPathSelector = new JsonPathSelector("$.data.attributes.commentCount");
-            String commentCount = jsonPathSelector.select(jsonText);
-            post.setPostViews(Long.parseLong(commentCount));
+            post.setPostViews((long) (usefulComments.size() - 1));
             // set number of post collects (always 0)
             post.setPostCollects(0L);
             // get last update time
             jsonPathSelector = new JsonPathSelector("$.data.attributes.lastPostedAt");
             String lastUpdate = jsonPathSelector.select(jsonText);
-            LocalDateTime date = LocalDateTime.parse(lastUpdate, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-            Date update = Date.from(date.atZone(ZoneId.systemDefault()).toInstant());
+            Date update = string2Date(lastUpdate);
             post.setLastUpdateTime(update);
             // get post create time
             jsonPathSelector = new JsonPathSelector("$.data.attributes.createdAt");
             String createTime = jsonPathSelector.select(jsonText);
-            date = LocalDateTime.parse(createTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-            Date create = Date.from(date.atZone(ZoneId.systemDefault()).toInstant());
-            System.out.println(create);
+            Date create = string2Date(createTime);
             post.setLastUpdateTime(create);
             // get post content
             // the first comment is the content of the post
             post.setPostContent(comments.get(0));
 
-            // save in ResultItem
+            // save in ResultItems
             page.putField("posts", post);
+            System.out.println(commentValues);
+            page.putField("comments", commentValues);
         }
 
+    }
+
+    private Date string2Date(String isoDate) {
+        LocalDateTime date = LocalDateTime.parse(isoDate, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        // "GMT+8" —— China timezone
+        return Date.from(date.atZone(ZoneId.of("GMT+8")).toInstant());
     }
 
     @Override

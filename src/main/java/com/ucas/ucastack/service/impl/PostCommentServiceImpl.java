@@ -1,8 +1,11 @@
 package com.ucas.ucastack.service.impl;
 
+import com.ucas.ucastack.dao.PostCommentMapper;
 import com.ucas.ucastack.entity.CommentListEntity;
+import com.ucas.ucastack.entity.PostComment;
 import com.ucas.ucastack.service.PostCommentService;
 import com.ucas.ucastack.util.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -11,6 +14,9 @@ import java.util.List;
 
 @Service
 public class PostCommentServiceImpl implements PostCommentService {
+
+    @Autowired
+    private PostCommentMapper commentMapper;
 
     /**
      * 以下是用来测试的方法，构造了数据，需要修改
@@ -27,5 +33,16 @@ public class PostCommentServiceImpl implements PostCommentService {
         commentListEntities.add(c2);
         PageResult pageResult = new PageResult(commentListEntities, 2, 6, 1);
         return pageResult;
+    }
+
+    //TODO: 此服务的实现只实现了爬虫需要的部分功能，其余功能还需要 @华为 实现 （savePostComment 的保存也需要更多的判断）
+
+    @Override
+    public int savePostComment(PostComment comment) {
+        if (comment.getCommentId() == -1) { // the data is fetched online
+            return commentMapper.insertIncrement(comment);
+        }
+
+        return 0;
     }
 }

@@ -109,7 +109,7 @@ CREATE TABLE `tb_post_comment` (
   `comment_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `post_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '关联的帖子主键',
   `comment_user_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '评论者id',
-  `comment_body` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '评论内容',
+  `comment_body` varchar(10000) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '评论内容',
   `parent_comment_user_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '所回复的上一级评论的userId',
   `comment_create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '评论时间',
   `is_deleted` tinyint(4) DEFAULT '0' COMMENT '是否删除 0-未删除 1-已删除',
