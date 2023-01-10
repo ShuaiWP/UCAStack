@@ -56,9 +56,9 @@ public class PostController {
         request.setAttribute("user", user);
 
         // 是否收藏了本贴 暂时性注释，测试
-//        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
-//        request.setAttribute("currentUserCollectFlag", postCollectService.validUserCollect(currentUser.getUserId(), postId));
-        request.setAttribute("currentUserCollectFlag", false);
+        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
+        request.setAttribute("currentUserCollectFlag", postCollectService.validUserCollect(currentUser.getUserId(), postId));
+        //request.setAttribute("currentUserCollectFlag", false);
 
         // 本周热议的帖子
         request.setAttribute("hotTopicPostList", postService.getHotTopicPostList());
@@ -72,7 +72,7 @@ public class PostController {
 
     @GetMapping("editPostPage/{postId}")
     public String editPostPage(HttpServletRequest request, @PathVariable(value = "postId") Long postId) {
-//        User user = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
+        User user = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
         List<PostCategory> postCategories = postCategoryService.getPostCategories();
         if (CollectionUtils.isEmpty(postCategories)) {
             return "error/error_404";
@@ -86,10 +86,10 @@ public class PostController {
         if (post == null) {
             return "error/error_404";
         }
-//        if (!user.getUserId().equals(post.getPublishUserId())) {
-//            request.setAttribute("message", "非本人发帖，无权限修改");
-//            return "error/error";
-//        }
+        if (!user.getUserId().equals(post.getPublishUserId())) {
+            request.setAttribute("message", "非本人发帖，无权限修改");
+            return "error/error";
+        }
         request.setAttribute("post", post);
         request.setAttribute("postId", postId);
         return "postPages/edit";
@@ -102,7 +102,7 @@ public class PostController {
                            @RequestParam("postCategoryId") Integer postCategoryId,
                            @RequestParam("postContent") String postContent,
                            HttpSession httpSession) {
-//        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
+        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
         if (null == postId || postId < 0) {
             return ResultGenerator.genFailResult("postId参数错误");
         }
@@ -110,9 +110,9 @@ public class PostController {
         if (temp == null) {
             return ResultGenerator.genFailResult("postId参数错误");
         }
-//        if (!user.getUserId().equals(temp.getPublishUserId())) {
-//            return ResultGenerator.genFailResult("非本人发帖，无权限修改");
-//        }
+        if (!user.getUserId().equals(temp.getPublishUserId())) {
+            return ResultGenerator.genFailResult("非本人发帖，无权限修改");
+        }
         if (!StringUtils.hasLength(postTitle)) {
             return ResultGenerator.genFailResult("postTitle参数错误");
         }
@@ -189,9 +189,9 @@ public class PostController {
 //        if (!StringUtils.hasLength(kaptchaCode) || !verifyCode.equals(kaptchaCode)) {
 //            return ResultGenerator.genFailResult(ServiceResultEnum.LOGIN_VERIFY_CODE_ERROR.getResult());
 //        }
-//        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
+        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
         Post post = new Post();
-//        post.setPublishUserId(user.getUserId());
+        post.setPublishUserId(user.getUserId());
         post.setPublishUserId((long)4);
         post.setPostTitle(postTitle);
         post.setPostContent(postContent);

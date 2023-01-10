@@ -28,7 +28,7 @@ public class User {
 
     private Date createTime;
 
-    public User(Long userId, String loginName, String passwordMd5, String nickName, String headImgUrl, String gender, String location, String introduce, Byte userStatus, Date lastLoginTime, Date createTime) {
+    /*public User(Long userId, String loginName, String passwordMd5, String nickName, String headImgUrl, String gender, String location, String introduce, Byte userStatus, Date lastLoginTime, Date createTime) {
         this.userId = userId;
         this.loginName = loginName;
         this.passwordMd5 = passwordMd5;
@@ -40,7 +40,7 @@ public class User {
         this.userStatus = userStatus;
         this.lastLoginTime = lastLoginTime;
         this.createTime = createTime;
-    }
+    }*/
 
     public Long getUserId() {
         return userId;

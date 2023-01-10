@@ -5,6 +5,13 @@ import com.ucas.ucastack.entity.User;
 import javax.servlet.http.HttpSession;
 
 public interface UserService {
+	
+    // 注册
+    String register(String loginName, String password, String nickName);
+
+    // 登录
+    String login(String loginName, String passwordMD5, HttpSession httpSession);
+    
     /**
      *  获取用户信息
      */
