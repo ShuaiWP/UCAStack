@@ -2,8 +2,10 @@ package com.ucas.ucastack.controller.rest;
 
 import com.ucas.ucastack.common.Constants;
 import com.ucas.ucastack.entity.Post;
+import com.ucas.ucastack.entity.RecentCommentListEntity;
 import com.ucas.ucastack.entity.User;
 import com.ucas.ucastack.service.PostCollectService;
+import com.ucas.ucastack.service.PostCommentService;
 import com.ucas.ucastack.service.PostService;
 import com.ucas.ucastack.service.UserService;
 import com.ucas.ucastack.util.Result;
@@ -30,6 +32,9 @@ public class UserController {
     @Resource
     private PostCollectService postCollectService;
 
+    @Resource
+    private PostCommentService postCommentService;
+
     @GetMapping("/userCenter/{userId}")
 //    @ResponseBody
     public String userCenterPage(HttpServletRequest request, @PathVariable("userId") Long userId) {
@@ -43,11 +48,11 @@ public class UserController {
         List<Post> recentPostList = postService.getRecentPostListByUserId(userId);
 
         //近期回复的内容
-//        List<RecentCommentListEntity> recentCommentList = bbsPostCommentService.getRecentCommentListByUserId(userId);
+        List<RecentCommentListEntity> recentCommentList = postCommentService.getRecentCommentListByUserId(userId);
 
         request.setAttribute("bbsUser", bbsUser);
         request.setAttribute("recentPostList", recentPostList);
-//        request.setAttribute("recentCommentList", recentCommentList);
+        request.setAttribute("recentCommentList", recentCommentList);
         return "user/home";
     }
 
@@ -56,12 +61,10 @@ public class UserController {
     public String userSetPage(HttpServletRequest request) {
         //假数据
 //        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
-        User currentUser = userService.getUserById(2L);
+        User currentUser = userService.getUserById(1L);
         request.setAttribute("bbsUser", currentUser);
 
         return "user/set";
-//        System.out.println(currentUser);
-//        return currentUser.getLoginName();
     }
 
     @GetMapping("/myCenter")
@@ -71,7 +74,7 @@ public class UserController {
         //基本用户信息
 //        User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
         //假数据
-        User currentUser = userService.getUserById(2L);
+        User currentUser = userService.getUserById(1L);
 
         //我发的贴
         List<Post> myBBSPostList = postService.getMyPostList(currentUser.getUserId());
@@ -81,16 +84,16 @@ public class UserController {
         }
 
         //我收藏的贴
-//        List<Post> collectRecords = postCollectService.getCollectRecordsByUserId(currentUser.getUserId());
-//        int myCollectBBSPostCount = 0;
-//        if (!CollectionUtils.isEmpty(collectRecords)) {
-//            myCollectBBSPostCount = collectRecords.size();
-//        }
+        List<Post> collectRecords = postCollectService.getCollectRecordsByUserId(currentUser.getUserId());
+        int myCollectBBSPostCount = 0;
+        if (!CollectionUtils.isEmpty(collectRecords)) {
+            myCollectBBSPostCount = collectRecords.size();
+        }
 
         request.setAttribute("myBBSPostList", myBBSPostList);
         request.setAttribute("myBBSPostCount", myBBSPostCount);
-//        request.setAttribute("collectRecords", collectRecords);
-//        request.setAttribute("myCollectBBSPostCount", myCollectBBSPostCount);
+        request.setAttribute("collectRecords", collectRecords);
+        request.setAttribute("myCollectBBSPostCount", myCollectBBSPostCount);
         request.setAttribute("bbsUser", currentUser);
         return "user/index";
     }
@@ -149,7 +152,7 @@ public class UserController {
         }
 //        User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
         //假数据
-        User user = userService.getUserById(2L);
+        User user = userService.getUserById(1L);
 
         user.setHeadImgUrl(userHeadImg);
         if (userService.updateUserHeadImg(user, httpSession)) {

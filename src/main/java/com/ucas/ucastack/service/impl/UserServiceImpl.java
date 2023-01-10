@@ -28,6 +28,7 @@ public class UserServiceImpl implements UserService {
     public Boolean updateUserInfo(User user, HttpSession httpSession) {
         User userTemp = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
         User userFromDB = userMapper.selectByPrimaryKey(userTemp.getUserId());
+//        User userFromDB = userMapper.selectByPrimaryKey(1L);
         //当前用户非空且状态正常才可以进行更改
         if (userFromDB != null && userFromDB.getUserStatus().intValue() == 0) {
             userFromDB.setIntroduce(SystemUtil.cleanString(user.getIntroduce()));

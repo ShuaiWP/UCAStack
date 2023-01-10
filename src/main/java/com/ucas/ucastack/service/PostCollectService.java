@@ -10,5 +10,5 @@ public interface PostCollectService {
     /**
      * 根据用户ID，获取用户收藏的帖子列表
      */
-//    List<Post> getCollectRecordsByUserId(Long userId);
+    List<Post> getCollectRecordsByUserId(Long userId);
 }
