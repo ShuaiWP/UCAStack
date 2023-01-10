@@ -1,5 +1,6 @@
 package com.ucas.ucastack.task;
 
+import com.ucas.ucastack.common.Constants;
 import com.ucas.ucastack.dao.PostMapper;
 import com.ucas.ucastack.entity.Post;
 import com.ucas.ucastack.entity.PostComment;
@@ -24,35 +25,27 @@ import java.util.List;
 public class PostProcessor implements PageProcessor {
 
     private Site mySite = Site.me()
-            .addCookie("_abfpc", "0062d41a0ac87a0c837f2a91546043b3af70760a_2.0")
-            .addCookie("cna", "efc73112ebefda929cbd400e16986e3e")
-            .addCookie("sepuser", "\"bWlkPWExMGViNGQyLWI1MGEtNGU2Mi04YWUyLWRiYTc4ZTA4YjVjNA==  \"")
-            .addCookie("flarum_remember", "UPk8qXxO8Fst7eDH9rv9hIWvPMk7PUGuhpntCZvz")
-            .addCookie("flarum_session", "znDPKjFskuffohqlzOb8aJiqgfvLCOV9gQsHPcQt")
+            .addCookie(Constants.COOKIE_KEY1, Constants.COOKIE_VALUE1)
+            .addCookie(Constants.COOKIE_KEY2, Constants.COOKIE_VALUE2)
+            .addCookie(Constants.COOKIE_KEY3, Constants.COOKIE_VALUE3)
+            .addCookie(Constants.COOKIE_KEY4, Constants.COOKIE_VALUE4)
+            .addCookie(Constants.COOKIE_KEY5, Constants.COOKIE_VALUE5)
             .setRetryTimes(3)
             .setCharset("utf-8");
-    private static final String baseListUrl = "https://gkder.ucas.ac.cn/api/discussions?include=user%2ClastPostedUser%2Ctags%2Ctags.parent%2CfirstPost%2CrecipientUsers%2CrecipientGroups&sort&page%5Boffset%5D=";
-    private static final String basePostUrl = "https://gkder.ucas.ac.cn/api/discussions/";
-
 
     @Override
     public void process(Page page) {
         // analyze current page url
         String pageUrl = page.getUrl().get();
-        if (pageUrl.contains(baseListUrl)) {      // current page contains list of posts
-            // get the most hot 100 posts
-            // add other list of pages into TargetRequests
-            for (int i = 20; i < 100; i += 20) {
-                page.addTargetRequest(baseListUrl + i);
-            }
-
+        if (pageUrl.contains(Constants.BASE_LIST_URL)) {      // current page contains list of posts
+            // top 20 most hot posts
             // get the id of posts
             String jsonText = page.getJson().get();
             JsonPathSelector jsonPathSelector = new JsonPathSelector("$.data[*].id");
             List<String> ids = jsonPathSelector.selectList(jsonText);
             // add target post pages into TargetRequests
             for (String id: ids) {
-                page.addTargetRequest(basePostUrl + id);
+                page.addTargetRequest(Constants.BASE_POST_URL + id);
             }
 
         } else {
