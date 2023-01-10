@@ -88,11 +88,7 @@ CREATE TABLE `tb_post_collect_record` (
                                           `user_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '收藏者id',
                                           `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '评论时间',
                                           PRIMARY KEY (`record_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
-/*Data for the table `tb_post_collect_record` */
-
-insert  into `tb_post_collect_record`(`record_id`,`post_id`,`user_id`,`create_time`) values (1,4,3,'2021-08-10 16:10:07'),(2,9,3,'2021-08-10 16:15:44'),(3,11,3,'2021-08-10 16:17:13'),(4,11,2,'2021-08-10 16:18:11'),(5,1,2,'2021-08-10 16:23:02'),(6,1,1,'2021-08-10 16:34:41'),(7,16,4,'2022-12-11 11:53:21');
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 /*Table structure for table `tb_post_comment` */
 
