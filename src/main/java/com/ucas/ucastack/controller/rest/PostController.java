@@ -57,8 +57,10 @@ public class PostController {
 
         // 是否收藏了本贴 暂时性注释，测试
         User currentUser = (User) request.getSession().getAttribute(Constants.USER_SESSION_KEY);
-        request.setAttribute("currentUserCollectFlag", postCollectService.validUserCollect(currentUser.getUserId(), postId));
-        //request.setAttribute("currentUserCollectFlag", false);
+
+//        request.setAttribute("currentUserCollectFlag", postCollectService.validUserCollect(currentUser.getUserId(), postId));
+//        request.setAttribute("currentUserCollectFlag", false);
+
 
         // 本周热议的帖子
         request.setAttribute("hotTopicPostList", postService.getHotTopicPostList());

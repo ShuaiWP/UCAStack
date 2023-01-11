@@ -24,6 +24,10 @@ public class CommentListEntity {
 
     private String headImgUrl;
 
+
+    public CommentListEntity() {
+    }
+
     public CommentListEntity(Long commentId, Long postId, Long commentUserId, String commentBody, Long parentCommentUserId, Date commentCreateTime, String nickName, String headImgUrl) {
         this.commentId = commentId;
         this.postId = postId;

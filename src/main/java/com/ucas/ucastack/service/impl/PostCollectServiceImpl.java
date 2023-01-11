@@ -24,7 +24,13 @@ public class PostCollectServiceImpl implements PostCollectService {
 
     @Override
     public Object validUserCollect(Long userId, Long postId) {
-        return null;
+
+        PostCollect bbsPostCollect = postCollectMapper.selectByUserIdAndPostId(userId, postId);
+        if (bbsPostCollect == null) {
+            return false;
+        }
+        return true;
+
     }
 
     @Override
