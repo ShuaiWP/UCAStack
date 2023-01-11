@@ -194,7 +194,7 @@ public class PostController {
         User user = (User) httpSession.getAttribute(Constants.USER_SESSION_KEY);
         Post post = new Post();
         post.setPublishUserId(user.getUserId());
-        post.setPublishUserId((long)4);
+        // post.setPublishUserId((long)4);
         post.setPostTitle(postTitle);
         post.setPostContent(postContent);
         post.setPostCategoryId(postCategoryId);
